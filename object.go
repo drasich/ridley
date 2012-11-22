@@ -2,14 +2,29 @@ package main
 
 import (
   "runtime"
+	"github.com/jteeuwen/glfw"
 )
 //TODO loaded, draw, destroy should be handled in a manager
+
+type Updatable interface {
+  update()
+}
+
+type Drawable interface {
+  draw()
+}
+
+type Collidable interface {
+  collide(c* Collidable)
+}
 
 type Object struct {
   model *Model
   mchan chan *Model
   matrix Matrix4
   loaded bool
+  position vec3
+  orientation quat
 }
 
 func (o *Object) init(path string) (err error) {
@@ -60,7 +75,24 @@ func (o *Object) update() {
   default:
     //fmt.Println("nothing received")
   }
+
+  o.control()
+  o.matrix.translation(o.position.x,o.position.y,o.position.z-7)
+  o.matrix.rotate(-90, 1,0,0)
 }
 
+
+func (o *Object) control(){
+  if glfw.Key('E') == glfw.KeyPress {
+    o.position.z -= 0.1;
+  } else if glfw.Key('D') == glfw.KeyPress {
+    o.position.z += 0.1;
+  } else if glfw.Key('S') == glfw.KeyPress {
+    o.position.x -= 0.1;
+  } else if glfw.Key('F') == glfw.KeyPress {
+    o.position.x += 0.1;
+  }
+
+}
 
 

@@ -1,5 +1,6 @@
 package main
 
+
 import (
 	gl "github.com/chsc/gogl/gl21"
 	"github.com/jteeuwen/glfw"
@@ -48,6 +49,13 @@ func initScene() (err error) {
   test = new(Object)
   test.init("model/test.bin")
 
+  var mat Matrix4
+
+  mat.translation(0,0,-7)
+  mat.rotate(-rotx, 0,1,0)
+  mat.rotate(-90, 1,0,0)
+  test.matrix = mat
+
 	return
 }
 
@@ -67,15 +75,15 @@ func updateScene() {
   runtime.LockOSThread()
 
   rotx +=5
-  if glfw.Key('W') == glfw.KeyPress {
-    rotx += 5
-  } else if glfw.Key(glfw.KeyEsc) == glfw.KeyPress {
+  if glfw.Key(glfw.KeyEsc) == glfw.KeyPress {
     exit = true
-  }/* else if glfw.Key('G') == glfw.KeyPress && !sent {
+  }
+  /* else if glfw.Key('G') == glfw.KeyPress && !sent {
     go mm.getModel("model/dsphere.bin", smchan)
     sent = true
   }
   */
+
 
   var mat Matrix4
 
@@ -89,7 +97,7 @@ func updateScene() {
   mat.translation(0,0,-7)
   mat.rotate(-rotx, 0,1,0)
   mat.rotate(-90, 1,0,0)
-  test.matrix = mat
+  //test.matrix = mat
 
   sphere.update()
   test.update()
