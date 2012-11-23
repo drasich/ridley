@@ -15,8 +15,8 @@ import (
 
 const (
 	Title  = "star"
-	Width  = 640
-	Height = 480
+	Width  = 640/3
+	Height = 480/3
 )
 
 var (
