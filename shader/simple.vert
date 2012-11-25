@@ -1,11 +1,13 @@
 attribute vec3 vertex;
 attribute vec3 normal;
+attribute vec2 texcoord;
 uniform mat4 matrix;
 uniform mat3 normal_matrix;
 uniform float test;
 
 varying vec4 diffuse,ambient;
 varying vec3 eye_normal,lightDir,halfway;
+varying vec2 f_texcoord;
 
 void main(void)
 {
@@ -25,5 +27,6 @@ void main(void)
   //gl_Position =   gl_ProjectionMatrix * matrix * vec4(vertex, 1.0);
   //gl_Position =   gl_ProjectionMatrix * matrix * vec4(vertex, test);
   gl_Position = matrix * vec4(vertex, test);
+  f_texcoord = texcoord;
 }
 

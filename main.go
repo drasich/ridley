@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	Title  = "star"
+	Title  = "ridley"
 	Width  = 640/3
 	Height = 480/3
 )
@@ -92,7 +92,16 @@ func createTexture(r io.Reader) (textureId gl.Uint, err error) {
 		copy(data[dest:dest+lineLen], rgbaImg.Pix[src:src+rgbaImg.Stride])
 		dest-=lineLen
 	}
-	gl.TexImage2D(gl.TEXTURE_2D, 0, 4, gl.Sizei(imgWidth), gl.Sizei(imgHeight), 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Pointer(&data[0]))
+  gl.TexImage2D(
+    gl.TEXTURE_2D,
+    0,
+    4,
+    gl.Sizei(imgWidth),
+    gl.Sizei(imgHeight),
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    gl.Pointer(&data[0]))
 
 	return textureId, nil
 }

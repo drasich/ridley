@@ -44,10 +44,10 @@ func initScene() (err error) {
   mm.init()
 
   sphere = new(Object)
-  sphere.init("model/dsphere.bin")
+  sphere.init("model/tex.bin")
 
   test = new(Object)
-  test.init("model/test.bin")
+  test.init("model/tex.bin")
 
   var mat Matrix4
 
@@ -67,7 +67,7 @@ func destroyScene() {
 func drawScene() {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   test.draw()
-  sphere.draw()
+  //sphere.draw()
 }
 
 

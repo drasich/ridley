@@ -17,6 +17,9 @@ type Shader struct {
   uniform_test gl.Int
   uniform_matrix gl.Int
   uniform_normal_matrix gl.Int
+
+  uniform_texture gl.Int
+  attribute_texcoord gl.Uint
 }
 
 func (s* Shader) initDefault() {
@@ -166,6 +169,14 @@ func (s* Shader) initAttribute() {
   }
 
   fmt.Println("attrib normal ", s.attribute_normal)
+
+  attribute_name = gl.GLString("texcoord")
+  att_tmp = gl.GetAttribLocation(s.program, attribute_name)
+  if att_tmp == -1 {
+		fmt.Println("mmm Error in getting attribute", gl.GoString(attribute_name))
+	} else {
+    s.attribute_texcoord = gl.Uint(att_tmp)
+  }
 
 }
 

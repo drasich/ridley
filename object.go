@@ -78,7 +78,7 @@ func (o *Object) update() {
 
   o.control()
   o.matrix.translation(o.position.x,o.position.y,o.position.z-7)
-  o.matrix.rotate(-90, 1,0,0)
+ // o.matrix.rotate(-90, 1,0,0)
 }
 
 

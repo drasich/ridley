@@ -89,14 +89,14 @@ func (mr *ModelReader) readModel(path string, m* Model) {
     mr.readfloat32(&y)
     mr.readfloat32(&z)
 
-    m.pos = append(m.pos,gl.Float(x),gl.Float(y),gl.Float(z))
-    //fmt.Printf("%f, %f, %f \n", x, y, z)
+    m.vertices = append(m.vertices,gl.Float(x),gl.Float(y),gl.Float(z))
+    fmt.Printf("vertices %f, %f, %f \n", x, y, z)
   }
-  //fmt.Printf("mpos size %d \n", len(m.pos))
+  //fmt.Printf("m.vertices size %d \n", len(m.vertices))
 
   var faces uint16
   mr.readuint16(&faces)
-  //fmt.Println("nb faces  : ", faces)
+  fmt.Println("nb faces  : ", faces)
 
   for i := 0 ; i <int(faces); i++ {
     var x, y, z uint16
@@ -105,7 +105,7 @@ func (mr *ModelReader) readModel(path string, m* Model) {
     mr.readuint16(&z)
 
     m.indexes = append(m.indexes,gl.Uint(x),gl.Uint(y),gl.Uint(z))
-    //fmt.Printf("face index :%d, %d, %d \n", x, y, z)
+    fmt.Printf("face indexes :%d, %d, %d \n", x, y, z)
   }
 
   var normals_num uint16
@@ -119,6 +119,19 @@ func (mr *ModelReader) readModel(path string, m* Model) {
 
     m.normals = append(m.normals,gl.Float(x),gl.Float(y),gl.Float(z))
     //fmt.Printf("normal %f, %f, %f \n", x, y, z)
+  }
+
+  var uvs_num uint16
+  mr.readuint16(&uvs_num)
+  fmt.Printf("uvs num  %d \n", uvs_num)
+
+  for i := 0 ; i <int(uvs_num); i++ {
+    var x,y float32
+    mr.readfloat32(&x)
+    mr.readfloat32(&y)
+
+    m.uvs = append(m.uvs,gl.Float(x),gl.Float(y))
+    fmt.Printf("uvs %f, %f \n", x, y)
   }
 
 }
