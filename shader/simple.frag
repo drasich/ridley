@@ -12,6 +12,7 @@ void main (void)
   vec4 specular = vec4(1.0,1.0,1.0,1);
 
 	vec4 color = ambient;
+  vec4 diffuse_tex = texture2D(texture, f_texcoord);
 	n = normalize(eye_normal);
 
 	NdotL = max(dot(n,-lightDir),0.0);
@@ -19,15 +20,12 @@ void main (void)
   float shininess = 100.0;
 
   if (NdotL > 0.0) {
-    color += diffuse * NdotL;
+    color += diffuse_tex * NdotL;
     halfv = normalize(halfway);
     NdotHV = max(dot(n,halfv),0.0);
     color += specular * pow(NdotHV, shininess);
   }
 
-  //gl_FragColor = color;
-  vec2 yep = vec2(1.0,1.0);
-  //gl_FragColor = texture2D(texture, yep);
-  gl_FragColor = texture2D(texture, f_texcoord);
+  gl_FragColor = color;
 }
 

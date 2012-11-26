@@ -98,8 +98,8 @@ func (m *Model) init() (err error) {
 }
 
 func (m* Model) initTexture() {
-  file, err := os.Open("model/test.png")
-  //file, err := os.Open("model/ceil.png")
+  //file, err := os.Open("model/test.png")
+  file, err := os.Open("model/ceil.png")
   if err != nil {
     log.Fatal(err)
   }
@@ -188,9 +188,6 @@ func (m* Model) draw() {
     gl.FALSE,
     0,
     gl.Pointer(nil));
-
-
-  //gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
 
   gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
   gl.EnableVertexAttribArray(m.shader.attribute_vertex);
