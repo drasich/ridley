@@ -3,7 +3,6 @@ package main
 import (
 	gl "github.com/chsc/gogl/gl21"
   "unsafe"
-  "fmt"
 
   "image"
   "os"
@@ -32,7 +31,6 @@ func (m *Model) init() (err error) {
   m.shader.init("shader/simple.vert", "shader/simple.frag")
 
   gl.GenBuffers(1, &m.buffer)
-  fmt.Println("init buffer : ", m.buffer)
   gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
   gl.BufferData(
     gl.ARRAY_BUFFER,
@@ -41,7 +39,6 @@ func (m *Model) init() (err error) {
     gl.STATIC_DRAW);
 
   gl.GenBuffers(1, &m.index);
-  fmt.Println("init index : ", m.index)
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.index);
   gl.BufferData(
     gl.ELEMENT_ARRAY_BUFFER,
@@ -57,28 +54,6 @@ func (m *Model) init() (err error) {
     gl.Pointer(&m.normals[0]),
     gl.STATIC_DRAW);
 
-  gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
-  gl.EnableVertexAttribArray(m.shader.attribute_vertex);
-  gl.VertexAttribPointer(
-    m.shader.attribute_vertex,
-    3,
-    gl.FLOAT,
-    gl.FALSE,
-    0,
-    gl.Pointer(nil));
-
-  gl.BindBuffer(gl.ARRAY_BUFFER, m.normal_buf);
-  gl.EnableVertexAttribArray(m.shader.attribute_normal);
-  gl.VertexAttribPointer(
-    m.shader.attribute_normal,
-    3,
-    gl.FLOAT,
-    gl.FALSE,
-    0,
-    gl.Pointer(nil));
-
-
-  //gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.index);
   m.initTexture()
 
   gl.GenBuffers(1, &m.texcoord)
@@ -88,11 +63,6 @@ func (m *Model) init() (err error) {
     gl.Sizeiptr(len(m.uvs)* int(unsafe.Sizeof(m.uvs[0]))),
     gl.Pointer(&m.uvs[0]),
     gl.STATIC_DRAW);
-
-  gl.BindBuffer(gl.ARRAY_BUFFER, 0);
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
-  gl.DisableVertexAttribArray(m.shader.attribute_vertex);
-  gl.DisableVertexAttribArray(m.shader.attribute_normal);
 
 	return
 }
@@ -109,8 +79,6 @@ func (m* Model) initTexture() {
   if err != nil {
     log.Fatal(err)
   }
-
-  fmt.Println("color model : ", img.ColorModel())
 
   rgbaImg, ok := img.(*image.NRGBA)
 	if !ok {
@@ -179,8 +147,8 @@ func (m* Model) draw() {
   gl.Uniform1i(m.shader.uniform_texture, 0)
 
   //texcoord
-  gl.EnableVertexAttribArray(m.shader.attribute_texcoord);
   gl.BindBuffer(gl.ARRAY_BUFFER, m.texcoord);
+  gl.EnableVertexAttribArray(m.shader.attribute_texcoord);
   gl.VertexAttribPointer(
     m.shader.attribute_texcoord,
     2,
@@ -191,7 +159,6 @@ func (m* Model) draw() {
 
   gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
   gl.EnableVertexAttribArray(m.shader.attribute_vertex);
-
   gl.VertexAttribPointer(
     m.shader.attribute_vertex,
     3,
@@ -212,12 +179,12 @@ func (m* Model) draw() {
 
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.index);
   gl.DrawElements(gl.TRIANGLES, gl.Sizei(len(m.indexes)), gl.UNSIGNED_INT, gl.Pointer(nil));
-  //gl.DrawElements(gl.TRIANGLES, gl.Sizei(12), gl.UNSIGNED_INT, gl.Pointer(nil));
+
+  gl.BindBuffer(gl.ARRAY_BUFFER, 0);
+  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
   gl.DisableVertexAttribArray(m.shader.attribute_vertex);
   gl.DisableVertexAttribArray(m.shader.attribute_normal);
   gl.DisableVertexAttribArray(m.shader.attribute_texcoord);
-
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
 
 }
 
