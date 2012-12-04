@@ -2,7 +2,6 @@ package ridley
 
 import (
   "runtime"
-	"github.com/jteeuwen/glfw"
 )
 //TODO loaded, draw, destroy should be handled in a manager
 
@@ -18,13 +17,20 @@ type Collidable interface {
   collide(c* Collidable)
 }
 
+//TODO rename updatecomponent
+type Component interface {
+  Update()
+}
+
+
 type Object struct {
   model *Model
   mchan chan *Model
   Matrix Matrix4
   loaded bool
-  position Vec3
-  orientation Quat
+  Position Vec3
+  Orientation Quat
+  components []Component
 }
 
 func (o *Object) Init(path string) (err error) {
@@ -76,23 +82,17 @@ func (o *Object) update() {
     //fmt.Println("nothing received")
   }
 
-  o.control()
-  o.Matrix.Translation(o.position.X,o.position.Y,o.position.Z-7)
+  for _,c := range o.components {
+    //(*c).Update()
+    c.Update()
+  }
+
+  o.Matrix.Translation(o.Position.X,o.Position.Y,o.Position.Z-7)
  // o.matrix.rotate(-90, 1,0,0)
 }
 
-
-func (o *Object) control(){
-  if glfw.Key('E') == glfw.KeyPress {
-    o.position.Z -= 0.1;
-  } else if glfw.Key('D') == glfw.KeyPress {
-    o.position.Z += 0.1;
-  } else if glfw.Key('S') == glfw.KeyPress {
-    o.position.X -= 0.1;
-  } else if glfw.Key('F') == glfw.KeyPress {
-    o.position.X += 0.1;
-  }
-
+func (o *Object) AddComponent(c Component) {
+  o.components = append(o.components,c)
 }
 
 

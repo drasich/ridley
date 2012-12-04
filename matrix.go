@@ -367,3 +367,14 @@ func (m *Matrix3) identity() {
   m[5], m[6], m[7] = 0,0,0,0,0,0
 }
 
+
+//from osg
+type hVec Quat
+type matrixAffineParts struct {
+  t Vec4 // translation component
+  q Quat // essential rotation
+  u Quat // Stretch rotation
+  k hVec // Sign of determinant
+  f float64
+}
+type hMatrix Matrix4
