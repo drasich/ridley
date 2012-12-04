@@ -1,19 +1,19 @@
-package main
+package ridley
 
-type vec3 struct {
-  x float64
-  y float64
-  z float64
+type Vec3 struct {
+  X float64
+  Y float64
+  Z float64
 }
 
-type vec4 struct {
-  x float64
-  y float64
-  z float64
-  w float64
+type Vec4 struct {
+  X float64
+  Y float64
+  Z float64
+  W float64
 }
 
-type quat vec4
+type Quat Vec4
 
 
 

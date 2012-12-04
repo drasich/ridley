@@ -1,4 +1,4 @@
-package main
+package ridley
 
 import (
   "runtime"
@@ -21,16 +21,16 @@ type Collidable interface {
 type Object struct {
   model *Model
   mchan chan *Model
-  matrix Matrix4
+  Matrix Matrix4
   loaded bool
-  position vec3
-  orientation quat
+  position Vec3
+  orientation Quat
 }
 
-func (o *Object) init(path string) (err error) {
+func (o *Object) Init(path string) (err error) {
   runtime.LockOSThread()
   o.loaded = false
-  o.matrix.identity()
+  o.Matrix.identity()
 
   o.mchan = make(chan *Model)
   go mm.getModel(path, o.mchan)
@@ -46,7 +46,7 @@ func (o *Object) destroy() {
 
 func (o* Object) draw() {
   if o.loaded {
-    o.model.setMatrix(o.matrix)
+    o.model.setMatrix(o.Matrix)
     o.model.draw()
   }
 }
@@ -77,20 +77,20 @@ func (o *Object) update() {
   }
 
   o.control()
-  o.matrix.translation(o.position.x,o.position.y,o.position.z-7)
+  o.Matrix.Translation(o.position.X,o.position.Y,o.position.Z-7)
  // o.matrix.rotate(-90, 1,0,0)
 }
 
 
 func (o *Object) control(){
   if glfw.Key('E') == glfw.KeyPress {
-    o.position.z -= 0.1;
+    o.position.Z -= 0.1;
   } else if glfw.Key('D') == glfw.KeyPress {
-    o.position.z += 0.1;
+    o.position.Z += 0.1;
   } else if glfw.Key('S') == glfw.KeyPress {
-    o.position.x -= 0.1;
+    o.position.X -= 0.1;
   } else if glfw.Key('F') == glfw.KeyPress {
-    o.position.x += 0.1;
+    o.position.X += 0.1;
   }
 
 }

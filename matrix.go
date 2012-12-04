@@ -1,4 +1,4 @@
-package main
+package ridley
 
 import (
   "math"
@@ -62,7 +62,7 @@ func (m *Matrix4) identity() {
   m[11], m[12], m[13], m[14] = 0,0,0,0,0,0,0,0,0,0,0,0
 }
 
-func (m *Matrix4) translation(x,y,z float64) {
+func (m *Matrix4) Translation(x,y,z float64) {
   m[0], m[5], m[10], m[15] = 1,1,1,1
   m[3], m[7], m[11] = x, y, z
   m[1], m[2], m[4],
@@ -127,7 +127,7 @@ func (m *Matrix4) multiply(n *Matrix4) Matrix4  {
   return newmat
 }
 
-func (mat *Matrix4) rotate(angle,x,y,z float64)  {
+func (mat *Matrix4) Rotate(angle,x,y,z float64)  {
   var rot Matrix4 = Matrix4Rotation(angle,x,y,z)
   //fmt.Println("rot : ",  rot)
   rot = mat.multiply(&rot)

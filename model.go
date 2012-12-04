@@ -1,4 +1,4 @@
-package main
+package ridley
 
 import (
 	gl "github.com/chsc/gogl/gl21"

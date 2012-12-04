@@ -1,4 +1,4 @@
-package main
+package ridley
 
 import (
 	//"bytes"
@@ -17,7 +17,7 @@ import (
 type Camera struct {
   name string
   id int
-  position vec3
-  orientation quat
+  position Vec3
+  orientation Quat
 }
 
