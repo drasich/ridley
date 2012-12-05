@@ -24,7 +24,6 @@ type Model struct {
 
   ngl Matrix3GLFloat
   glm Matrix4GLFloat
-
 }
 
 func (m *Model) init() (err error) {
@@ -186,5 +185,40 @@ func (m* Model) draw() {
   gl.DisableVertexAttribArray(m.shader.attribute_normal);
   gl.DisableVertexAttribArray(m.shader.attribute_texcoord);
 
+}
+
+type MeshComponent struct {
+  path string
+  mchan chan *Model
+  loaded bool
+  model *Model
+  owner *Object
+}
+
+func NewMeshComponent(path string, owner *Object) *MeshComponent {
+  return &MeshComponent{path, make(chan *Model), false, nil, owner}
+}
+
+func (c *MeshComponent) Init() {
+  go mm.getModel(c.path, c.mchan)
+}
+
+func (c *MeshComponent) update() {
+  select {
+  case c.model = <-c.mchan:
+    if !c.loaded {
+      c.model.init()
+      c.loaded = true
+    }
+  default:
+    //fmt.Println("nothing received")
+  }
+}
+
+func (c* MeshComponent) draw() {
+  if c.loaded {
+    c.model.setMatrix(c.owner.Matrix)
+    c.model.draw()
+  }
 }
 
