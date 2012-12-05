@@ -6,7 +6,7 @@ import (
 //  "fmt"
 )
 
-const kDegToRad = 3.14159 / 180.0
+const DegToRad = math.Pi / 180.0
 
 /*
 type Matrix4 struct {
@@ -49,7 +49,7 @@ func (m *Matrix4) translate(x, y, z float64) {
     m[11]+= m[15]*z
 }
 
-func  makeMatrix4Identity() Matrix4 {
+func  Matrix4Identity() Matrix4 {
   var mat Matrix4
   mat.identity()
   return mat
@@ -57,6 +57,7 @@ func  makeMatrix4Identity() Matrix4 {
 
 func (m *Matrix4) identity() {
   m[0], m[5], m[10], m[15] = 1,1,1,1
+  
   m[1], m[2], m[3], m[4],
   m[6], m[7], m[8], m[9],
   m[11], m[12], m[13], m[14] = 0,0,0,0,0,0,0,0,0,0,0,0
@@ -65,6 +66,7 @@ func (m *Matrix4) identity() {
 func (m *Matrix4) Translation(x,y,z float64) {
   m[0], m[5], m[10], m[15] = 1,1,1,1
   m[3], m[7], m[11] = x, y, z
+
   m[1], m[2], m[4],
   m[6], m[8], m[9],
   m[12], m[13], m[14] = 0,0,0,0,0,0,0,0,0
@@ -72,8 +74,8 @@ func (m *Matrix4) Translation(x,y,z float64) {
 
 func Matrix4Rotation(angle,x,y,z float64) (m Matrix4)  {
 
-  c := math.Cos(angle * kDegToRad)    // cosine
-  s := math.Sin(angle * kDegToRad);    // sine
+  c := math.Cos(angle * DegToRad)
+  s := math.Sin(angle * DegToRad)
   xx := x * x
   xy := x * y
   xz := x * z
@@ -196,7 +198,7 @@ func MakeFrustum(left, right, bottom, top, near, far float64) (m Matrix4) {
 
 func MakeFrustumFov(fov_y, aspect_ratio, front, back float64) (m Matrix4) {
 
-  tangent := math.Tan(fov_y/2 * kDegToRad)   // tangent of half fovY
+  tangent := math.Tan(fov_y/2 * DegToRad)   // tangent of half fovY
   height := front * tangent           // half height of near plane
   width := height * aspect_ratio       // half width of near plane
 
@@ -378,3 +380,63 @@ type matrixAffineParts struct {
   f float64
 }
 type hMatrix Matrix4
+
+
+func  Matrix4Quat(q Quat) Matrix4 {
+  length2 := q.length2()
+  if math.Abs(length2) <= math.SmallestNonzeroFloat64 {
+    //TODO osg makes the matrix33 to 0...
+    return Matrix4Identity()
+  }
+
+  var rlength2 float64
+  if length2 != 1 {
+    rlength2 = 2/length2
+  } else {
+    rlength2 = 2
+  }
+
+  x2 := rlength2*q.X
+  y2 := rlength2*q.Y
+  z2 := rlength2*q.Z
+
+  xx := q.X * x2
+  xy := q.X * y2
+  xz := q.X * z2
+
+  yy := q.Y * y2
+  yz := q.Y * z2
+  zz := q.Z * z2
+
+  wx := q.W * x2
+  wy := q.W * y2
+  wz := q.W * z2
+
+
+  var m Matrix4
+  //m.identity()
+  //already 0
+  //m[3], m[7], m[11], m[12], m[13], m[14] = 0,0,0,0,0,0
+  m[15] = 1
+
+  m[0] = 1 - (yy + zz)
+  m[4] = xy - wz
+  m[8] = xz + wy
+
+  m[1] = xy + wz
+  m[5] = 1 - (xx + zz)
+  m[9] = yz - wx
+
+  m[2] = xz - wy
+  m[6] = yz + wx
+  m[10] = 1 - (xx + yy)
+
+  return m
+}
+
+func Matrix4Translation(v Vec3) (m Matrix4) {
+  m[0], m[5], m[10], m[15] = 1,1,1,1
+  m[3], m[7], m[11] = v.X, v.Y, v.Z
+  return m
+
+}

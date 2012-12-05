@@ -17,7 +17,7 @@ type Object struct {
 func (o *Object) Init() (err error) {
   //runtime.LockOSThread()
   o.Matrix.identity()
-
+  o.Orientation.identity()
 	return
 }
 
@@ -42,8 +42,12 @@ func (o *Object) update() {
     o.Mesh.update()
   }
 
-  o.Matrix.Translation(o.Position.X,o.Position.Y,o.Position.Z-7)
- // o.matrix.rotate(-90, 1,0,0)
+  mt := Matrix4Translation(o.Position)
+  mr := Matrix4Quat(o.Orientation)
+
+  //TODO change the multiply function
+  newmat := mt.multiply(&mr)
+  o.Matrix = newmat
 }
 
 func (o *Object) AddComponent(c Component) {
