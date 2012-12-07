@@ -210,8 +210,6 @@ func (s* Shader) initUniform() {
 
 }
 
-
-
 func (s* Shader) destroy() {
   gl.DeleteShader(s.vert_shader)
   gl.DeleteShader(s.frag_shader)

@@ -22,6 +22,9 @@ type Model struct {
   uvs       []gl.Float
   shader Shader
 
+  //TODO this doesn't need to be here
+  // it can be declared outside but it must not be cleaned by the gc
+  // also check the other variables
   ngl Matrix3GLFloat
   glm Matrix4GLFloat
 }

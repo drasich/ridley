@@ -12,6 +12,7 @@ type Object struct {
   Orientation Quat
   components []Component
   Mesh *MeshComponent
+  Box *BoxComponent
 }
 
 func (o *Object) Init() (err error) {
