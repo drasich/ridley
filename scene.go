@@ -11,7 +11,7 @@ import (
 type Scene struct {
   Name string
   Id int
-  objects []*Object
+  Objects []*Object
 }
 
 var (
@@ -46,7 +46,7 @@ func (s *Scene) Init() (err error) {
 }
 
 func (s* Scene) Destroy() {
-  for _,o := range s.objects {
+  for _,o := range s.Objects {
     o.destroy()
   } 
 }
@@ -54,7 +54,7 @@ func (s* Scene) Destroy() {
 
 func (s *Scene) Draw() {
   gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  for _,o := range s.objects {
+  for _,o := range s.Objects {
     o.draw()
   } 
 }
@@ -62,7 +62,7 @@ func (s *Scene) Draw() {
 func (s *Scene) Update() {
   runtime.LockOSThread()
 
-  for _,o := range s.objects {
+  for _,o := range s.Objects {
     o.update()
   } 
 }
@@ -70,7 +70,7 @@ func (s *Scene) Update() {
 
 
 func (s *Scene) AddObject(o *Object) (err error) {
-  s.objects = append(s.objects,o)
+  s.Objects = append(s.Objects,o)
   return
 }
 
