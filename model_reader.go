@@ -104,8 +104,8 @@ func (mr *ModelReader) readModel(path string, m* Model) {
     mr.readuint16(&y)
     mr.readuint16(&z)
 
-    m.indexes = append(m.indexes,gl.Uint(x),gl.Uint(y),gl.Uint(z))
-    fmt.Printf("face indexes :%d, %d, %d \n", x, y, z)
+    m.indices = append(m.indices,gl.Uint(x),gl.Uint(y),gl.Uint(z))
+    fmt.Printf("face indices :%d, %d, %d \n", x, y, z)
   }
 
   var normals_num uint16

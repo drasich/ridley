@@ -138,7 +138,7 @@ func (s* Shader) initWithString(vert_shader string, frag_shader string) {
 		fmt.Println("Error linking program")
 		gl.GetProgramiv(s.program, gl.INFO_LOG_LENGTH, &info_length)
 		message = gl.GLStringAlloc(gl.Sizei(info_length))
-		gl.GetShaderInfoLog(s.program, gl.Sizei(info_length), nil, message)
+		gl.GetProgramInfoLog(s.program, gl.Sizei(info_length), nil, message)
 		fmt.Println(gl.GoString(message))
 		gl.GLStringFree(message)
 	}
