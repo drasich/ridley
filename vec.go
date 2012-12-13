@@ -22,25 +22,32 @@ type Vec4 struct {
   W float64
 }
 
-func Vec3Add(p1 Vec3, p2 Vec3) (p3 Vec3) {
-  p3.X = p1.X + p2.X
-  p3.Y = p1.Y + p2.Y
-  p3.Z = p1.Z + p2.Z
-  return p3
+func Vec3Add(v1 Vec3, v2 Vec3) (v3 Vec3) {
+  v3.X = v1.X + v2.X
+  v3.Y = v1.Y + v2.Y
+  v3.Z = v1.Z + v2.Z
+  return v3
 }
 
-func Vec3Sub(p1 Vec3, p2 Vec3) (p3 Vec3) {
-  p3.X = p1.X - p2.X
-  p3.Y = p1.Y - p2.Y
-  p3.Z = p1.Z - p2.Z
-  return p3
+func Vec3Sub(v1 Vec3, v2 Vec3) (v3 Vec3) {
+  v3.X = v1.X - v2.X
+  v3.Y = v1.Y - v2.Y
+  v3.Z = v1.Z - v2.Z
+  return v3
 }
 
-func Vec3Mul(p1 Vec3, s float64) (p2 Vec3) {
-  p2.X = p1.X*s
-  p2.Y = p1.Y*s
-  p2.Z = p1.Z*s
-  return p2
+func Vec3Mul(v1 Vec3, s float64) (v2 Vec3) {
+  v2.X = v1.X*s
+  v2.Y = v1.Y*s
+  v2.Z = v1.Z*s
+  return v2
+}
+
+func Vec3Cross(v1 Vec3, v2 Vec3) (v3 Vec3) {
+  v3.X = v1.Y * v2.Z - v1.Z*v2.Y
+  v3.Y = v1.Z * v2.X - v1.X*v2.Z
+  v3.Z = v1.X * v2.Y - v1.Y*v2.X
+  return v3
 }
 
 
@@ -90,6 +97,14 @@ func QuatAngleAxis(angle float64, axis Vec3) Quat {
                axis.Y * sin_half_angle * inverse_norm,
                axis.Z * sin_half_angle * inverse_norm,
                cos_half_angle}
+}
+
+func (q *Quat) conjugate() (r Quat) {
+  r.X = -q.X
+  r.Y = -q.Y
+  r.Z = -q.Z
+  r.W = q.W
+  return r
 }
 
 
@@ -167,7 +182,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   if ray.Start.X < box.Min.X {
     xt = box.Min.X - ray.Start.X
     if xt > ray.Direction.X {
-    fmt.Println("return 00")
       return false, false, position, normal
     }
     xt /= ray.Direction.X
@@ -176,7 +190,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   } else if (ray.Start.X > box.Max.X) {
     xt = box.Max.X - ray.Start.X
     if xt < ray.Direction.X {
-    fmt.Println("return 01")
       return false, false, position, normal
     }
     xt /= ray.Direction.X
@@ -190,7 +203,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   if ray.Start.Y < box.Min.Y {
     yt = box.Min.Y - ray.Start.Y
     if yt > ray.Direction.Y {
-    fmt.Println("return 02")
       return false, false, position, normal
     }
     yt /= ray.Direction.Y
@@ -199,7 +211,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   } else if (ray.Start.Y > box.Max.Y) {
     yt = box.Max.Y - ray.Start.Y
     if yt < ray.Direction.Y {
-    fmt.Println("return 03")
       return false, false, position, normal
     }
     yt /= ray.Direction.Y
@@ -213,7 +224,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   if ray.Start.Z < box.Min.Z {
     zt = box.Min.Z - ray.Start.Z
     if zt > ray.Direction.Z {
-    fmt.Println("return 04")
       return false, false, position, normal
     }
     zt /= ray.Direction.Z
@@ -222,7 +232,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   } else if (ray.Start.Z > box.Max.Z) {
     zt = box.Max.Z - ray.Start.Z
     if zt < ray.Direction.Z {
-    fmt.Println("return 05")
       return false, false, position, normal
     }
     zt /= ray.Direction.Z
@@ -233,7 +242,6 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
   }
 
   if inside {
-    fmt.Println("return 06")
     return true, true, position, normal
   }
 
@@ -271,7 +279,59 @@ func IntersectionRayAABox(ray Ray, box AABox) (isHit bool, isInside bool, positi
 
     normal.Y = zn
   }
+
+  position = Vec3Add(ray.Start, Vec3Mul(ray.Direction,t))
  
-  //return isHit, isInside, position , normal
   return true, false, position , normal
 }
+
+func IntersectionRayObject(ray Ray, o *Object) (
+  hit bool, inside bool, position Vec3, normal Vec3) {
+
+  var box AABox
+
+  if o.Box == nil {
+    fmt.Println("no box return")
+    return false, false, position, normal
+  }
+
+  box = o.Box.box
+
+  fmt.Println("ray at first", ray)
+
+  //transform the ray in box/object coord
+  var newray Ray
+  start :=  Vec3Sub(ray.Start, o.Position)
+  iq := o.Orientation.conjugate()
+  start = iq.RotateVec3(start)
+
+  dir := iq.RotateVec3(ray.Direction)
+
+  newray.Start = start
+  newray.Direction = dir
+  fmt.Println("newray", newray)
+  fmt.Println("box", box)
+
+  hit, inside, position, normal = IntersectionRayAABox(newray, box)
+
+  //transform back
+  position = o.Orientation.RotateVec3(position)
+  position = Vec3Add(position, o.Position)
+
+  normal = o.Orientation.RotateVec3(normal)
+
+  return hit, inside, position, normal
+}
+
+
+func (q Quat) RotateVec3(v Vec3) (r Vec3) {
+  qvec := Vec3{q.X, q.Y, q.Z}
+  uv := Vec3Cross(qvec, v)
+  uuv := Vec3Cross(qvec, uv)
+  uv = Vec3Mul(uv, 2* q.W)
+  uuv = Vec3Mul(uuv, 2)
+  r = Vec3Add(v, uv)
+  r = Vec3Add(r, uuv)
+  return r
+}
+
