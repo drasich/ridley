@@ -144,7 +144,7 @@ func (s* Shader) initWithString(vert_shader string, frag_shader string) {
 	}
 
   s.initAttributes()
-  s.initUniform()
+  s.initUniforms()
 
 }
 
@@ -165,34 +165,18 @@ func (s* Shader) initAttributes() {
   s.initAttribute("texcoord", &s.attribute_texcoord)
 }
 
-func (s* Shader) initUniform() {
-  uniform_name := gl.GLString("test")
-  defer gl.GLStringFree(uniform_name)
-  s.uniform_test  = gl.GetUniformLocation(s.program, uniform_name)
-  if s.uniform_test == -1 {
-		fmt.Println("Shit Error in getting uniform", gl.GoString(uniform_name))
+func (s *Shader) initUniform(name string, uni *gl.Int) {
+  uni_name := gl.GLString(name)
+  defer gl.GLStringFree(uni_name)
+  *uni  = gl.GetUniformLocation(s.program, uni_name)
+  if *uni == -1 {
+		fmt.Println("Shit Error in getting uniform", gl.GoString(uni_name))
   }
+}
 
-  //setting the uniform
-  s.use()
-  gl.Uniform1f(s.uniform_test, 1.0)
-
-  uniform_name = gl.GLString("matrix")
-  s.uniform_matrix  = gl.GetUniformLocation(s.program, uniform_name)
-  if s.uniform_matrix == -1 {
-		fmt.Println("Error in getting uniform", gl.GoString(uniform_name))
-  }
-  fmt.Println("no error ", s.uniform_matrix)
-
-
-  uniform_name = gl.GLString("normal_matrix")
-  s.uniform_normal_matrix  = gl.GetUniformLocation(s.program, uniform_name)
-  if s.uniform_normal_matrix == -1 {
-		fmt.Println("Error in getting uniform", gl.GoString(uniform_name))
-  } else {
-    fmt.Println("no error ", s.uniform_normal_matrix)
-  }
-
+func (s* Shader) initUniforms() {
+  s.initUniform("matrix", &s.uniform_matrix)
+  s.initUniform("normal_matrix", &s.uniform_normal_matrix)
 }
 
 func (s* Shader) destroy() {
