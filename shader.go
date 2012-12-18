@@ -143,41 +143,26 @@ func (s* Shader) initWithString(vert_shader string, frag_shader string) {
 		gl.GLStringFree(message)
 	}
 
-  s.initAttribute()
+  s.initAttributes()
   s.initUniform()
 
 }
 
-func (s* Shader) initAttribute() {
-  attribute_name := gl.GLString("vertex")
-  defer gl.GLStringFree(attribute_name)
-  att_tmp := gl.GetAttribLocation(s.program, attribute_name)
+func (s* Shader) initAttribute(name string, att *gl.Uint ){
+  att_name := gl.GLString(name)
+  defer gl.GLStringFree(att_name)
+  att_tmp := gl.GetAttribLocation(s.program, att_name)
   if att_tmp == -1 {
-		fmt.Println("Error in getting attribute ", gl.GoString(attribute_name))
+		fmt.Println("Error in getting attribute ", gl.GoString(att_name))
 	} else {
-    s.attribute_vertex = gl.Uint(att_tmp)
+    *att = gl.Uint(att_tmp)
   }
+}
 
-  fmt.Println("attrib vertex ", s.attribute_vertex)
-
-  attribute_name = gl.GLString("normal")
-  att_tmp = gl.GetAttribLocation(s.program, attribute_name)
-  if att_tmp == -1 {
-		fmt.Println("mmm Error in getting attribute", gl.GoString(attribute_name))
-	} else {
-    s.attribute_normal = gl.Uint(att_tmp)
-  }
-
-  fmt.Println("attrib normal ", s.attribute_normal)
-
-  attribute_name = gl.GLString("texcoord")
-  att_tmp = gl.GetAttribLocation(s.program, attribute_name)
-  if att_tmp == -1 {
-		fmt.Println("mmm Error in getting attribute", gl.GoString(attribute_name))
-	} else {
-    s.attribute_texcoord = gl.Uint(att_tmp)
-  }
-
+func (s* Shader) initAttributes() {
+  s.initAttribute("vertex", &s.attribute_vertex)
+  s.initAttribute("normal", &s.attribute_normal)
+  s.initAttribute("texcoord", &s.attribute_texcoord)
 }
 
 func (s* Shader) initUniform() {
