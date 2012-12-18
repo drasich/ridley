@@ -110,7 +110,6 @@ func (s* Shader) initWithString(vert_shader string, frag_shader string) {
   s.initShader(gl.FRAGMENT_SHADER, frag_shader, &s.frag_shader)
 
   s.program = gl.CreateProgram()
-  fmt.Println("program : ", s.program)
 
   gl.AttachShader(s.program, s.vert_shader)
 	gl.AttachShader(s.program, s.frag_shader)
@@ -159,7 +158,7 @@ func (s *Shader) initUniform(name string, uni *gl.Int) {
   defer gl.GLStringFree(uni_name)
   *uni  = gl.GetUniformLocation(s.program, uni_name)
   if *uni == -1 {
-		fmt.Println("Shit Error in getting uniform", gl.GoString(uni_name))
+		fmt.Println("Error in getting uniform", gl.GoString(uni_name))
   }
 }
 
