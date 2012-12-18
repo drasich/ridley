@@ -74,57 +74,40 @@ func (s* Shader) init(vert_path string, frag_path string) {
   s.initWithString(vert, frag)
 }
 
-func (s* Shader) initWithString(vert_shader string, frag_shader string) {
-
-  s.vert_shader = gl.CreateShader(gl.VERTEX_SHADER)
-  if s.vert_shader == 0 {
-    fmt.Println("error creating vertex shader")
+func (s *Shader) initShader(t gl.Enum, str string, shader *gl.Uint) {
+  *shader = gl.CreateShader(t)
+  if *shader == 0 {
+    fmt.Println("error creating shader of type ", t)
   }
-  fmt.Println("shader : ", s.vert_shader)
+  
+  src := gl.GLStringArray(str)
+	defer gl.GLStringArrayFree(src)
 
-  s.frag_shader = gl.CreateShader(gl.FRAGMENT_SHADER)
-
-  if s.frag_shader == 0 {
-    fmt.Println("error creating fragment shader")
-  }
-
-  vert_src := gl.GLStringArray(vert_shader)
-	defer gl.GLStringArrayFree(vert_src)
-
-  gl.ShaderSource(s.vert_shader, 1, &vert_src[0], nil);
-  gl.CompileShader(s.vert_shader);
+  gl.ShaderSource(*shader, 1, &src[0], nil);
+  gl.CompileShader(*shader);
 
   var (
-		status     gl.Int
+		status gl.Int
 		info_length gl.Int
-		message    *gl.Char
+		message *gl.Char
 	)
 
-  gl.GetShaderiv(s.vert_shader, gl.COMPILE_STATUS, &status)
+  gl.GetShaderiv(*shader, gl.COMPILE_STATUS, &status)
   if status == gl.FALSE {
-    fmt.Println("Error compiling vertex shader")
-    gl.GetShaderiv(s.vert_shader, gl.INFO_LOG_LENGTH, &info_length)
+    fmt.Println("Error compiling shader")
+    gl.GetShaderiv(*shader, gl.INFO_LOG_LENGTH, &info_length)
 		message = gl.GLStringAlloc(gl.Sizei(info_length))
-		gl.GetShaderInfoLog(s.vert_shader, gl.Sizei(info_length), nil, message)
+		gl.GetShaderInfoLog(*shader, gl.Sizei(info_length), nil, message)
 		fmt.Println(gl.GoString(message))
 		gl.GLStringFree(message)
 	}
+  
+}
 
-  frag_src := gl.GLStringArray(frag_shader)
-	defer gl.GLStringArrayFree(frag_src)
+func (s* Shader) initWithString(vert_shader string, frag_shader string) {
 
-  gl.ShaderSource(s.frag_shader, 1, &frag_src[0], nil);
-  gl.CompileShader(s.frag_shader);
-
-  gl.GetShaderiv(s.frag_shader, gl.COMPILE_STATUS, &status)
-  if status == gl.FALSE {
-    fmt.Println("Error compiling frag shader")
-    gl.GetShaderiv(s.frag_shader, gl.INFO_LOG_LENGTH, &info_length)
-		message = gl.GLStringAlloc(gl.Sizei(info_length))
-		gl.GetShaderInfoLog(s.frag_shader, gl.Sizei(info_length), nil, message)
-		fmt.Println(gl.GoString(message))
-		gl.GLStringFree(message)
-	}
+  s.initShader(gl.VERTEX_SHADER, vert_shader, &s.vert_shader)
+  s.initShader(gl.FRAGMENT_SHADER, frag_shader, &s.frag_shader)
 
   s.program = gl.CreateProgram()
   fmt.Println("program : ", s.program)
@@ -132,6 +115,12 @@ func (s* Shader) initWithString(vert_shader string, frag_shader string) {
   gl.AttachShader(s.program, s.vert_shader)
 	gl.AttachShader(s.program, s.frag_shader)
 	gl.LinkProgram(s.program)
+
+  var (
+		status gl.Int
+		info_length gl.Int
+		message *gl.Char
+	)
 
 	gl.GetProgramiv(s.program, gl.LINK_STATUS, &status)
 	if status == gl.FALSE {
