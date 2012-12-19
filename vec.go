@@ -112,7 +112,7 @@ func IntersectionRayPlane(ray Ray, plane Plane) (b bool, v Vec3) {
   } else {
     d := -Vec3Dot(plane.Normal, plane.Point)
     p0n := Vec3Dot(ray.Start, plane.Normal)
-    t :=  ( d - p0n) / dn
+    t :=  (d - p0n) / dn
     if ( t > 0 && t <= 1) {
       b = true
       v = Vec3Add(ray.Start, Vec3Mul(ray.Direction, t))
