@@ -26,6 +26,7 @@ var (
   sphere *Object
   test *Object
 
+  //TODO remove this from here
   projection = MakeFrustum(-1, 1, -1, 1, 1, 100.0)
 )
 
