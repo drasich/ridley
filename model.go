@@ -29,9 +29,20 @@ type Model struct {
   glm Matrix4GLFloat
 }
 
+func (m *Model) initBufferFloat(buffer *gl.Uint, t gl.Enum, data *[]gl.Float) {
+  gl.GenBuffers(1, buffer)
+  gl.BindBuffer(t, *buffer);
+  gl.BufferData(
+    t,
+    gl.Sizeiptr(len(*data)* int(unsafe.Sizeof((*data)[0]))),
+    gl.Pointer(&(*data)[0]),
+    gl.STATIC_DRAW);
+}
+
 func (m *Model) init() (err error) {
   m.shader.init("shader/simple.vert", "shader/simple.frag")
 
+  /*
   gl.GenBuffers(1, &m.buffer)
   gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
   gl.BufferData(
@@ -39,6 +50,9 @@ func (m *Model) init() (err error) {
     gl.Sizeiptr(len(m.vertices)* int(unsafe.Sizeof(m.vertices[0]))),
     gl.Pointer(&m.vertices[0]),
     gl.STATIC_DRAW);
+  */
+
+  m.initBufferFloat(&m.buffer, gl.ARRAY_BUFFER, &m.vertices)
 
   gl.GenBuffers(1, &m.index);
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.index);
