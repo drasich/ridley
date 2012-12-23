@@ -10,16 +10,16 @@ import (
 )
 
 type Model struct {
-  buffer      gl.Uint
-  index      gl.Uint
+  buffer gl.Uint
+  index gl.Uint
   normal_buf gl.Uint
   texture_id gl.Uint
   texcoord gl.Uint
 
-  vertices        []gl.Float
-  indexes       []gl.Uint
-  normals       []gl.Float
-  uvs       []gl.Float
+  vertices []gl.Float
+  indices []gl.Uint
+  normals []gl.Float
+  uvs []gl.Float
   shader Shader
 
   has_uv bool
@@ -31,9 +31,20 @@ type Model struct {
   glm Matrix4GLFloat
 }
 
+func (m *Model) initBufferFloat(buffer *gl.Uint, t gl.Enum, data *[]gl.Float) {
+  gl.GenBuffers(1, buffer)
+  gl.BindBuffer(t, *buffer);
+  gl.BufferData(
+    t,
+    gl.Sizeiptr(len(*data)* int(unsafe.Sizeof((*data)[0]))),
+    gl.Pointer(&(*data)[0]),
+    gl.STATIC_DRAW);
+}
+
 func (m *Model) init() (err error) {
   m.shader.init("shader/simple.vert", "shader/simple.frag")
 
+  /*
   gl.GenBuffers(1, &m.buffer)
   gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
   gl.BufferData(
@@ -41,13 +52,16 @@ func (m *Model) init() (err error) {
     gl.Sizeiptr(len(m.vertices)* int(unsafe.Sizeof(m.vertices[0]))),
     gl.Pointer(&m.vertices[0]),
     gl.STATIC_DRAW);
+  */
+
+  m.initBufferFloat(&m.buffer, gl.ARRAY_BUFFER, &m.vertices)
 
   gl.GenBuffers(1, &m.index);
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.index);
   gl.BufferData(
     gl.ELEMENT_ARRAY_BUFFER,
-    gl.Sizeiptr(len(m.indexes)*int(unsafe.Sizeof(m.indexes[0]))),
-    gl.Pointer(&m.indexes[0]),
+    gl.Sizeiptr(len(m.indices)*int(unsafe.Sizeof(m.indices[0]))),
+    gl.Pointer(&m.indices[0]),
     gl.STATIC_DRAW);
 
   gl.GenBuffers(1, &m.normal_buf);
@@ -186,7 +200,7 @@ func (m* Model) draw() {
     gl.Pointer(nil));
 
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.index);
-  gl.DrawElements(gl.TRIANGLES, gl.Sizei(len(m.indexes)), gl.UNSIGNED_INT, gl.Pointer(nil));
+  gl.DrawElements(gl.TRIANGLES, gl.Sizei(len(m.indices)), gl.UNSIGNED_INT, gl.Pointer(nil));
 
   gl.BindBuffer(gl.ARRAY_BUFFER, 0);
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);

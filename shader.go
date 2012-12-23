@@ -74,140 +74,97 @@ func (s* Shader) init(vert_path string, frag_path string) {
   s.initWithString(vert, frag)
 }
 
-func (s* Shader) initWithString(vert_shader string, frag_shader string) {
-
-  s.vert_shader = gl.CreateShader(gl.VERTEX_SHADER)
-  if s.vert_shader == 0 {
-    fmt.Println("error creating vertex shader")
+func (s *Shader) initShader(t gl.Enum, str string, shader *gl.Uint) {
+  *shader = gl.CreateShader(t)
+  if *shader == 0 {
+    fmt.Println("error creating shader of type ", t)
   }
-  fmt.Println("shader : ", s.vert_shader)
+  
+  src := gl.GLStringArray(str)
+	defer gl.GLStringArrayFree(src)
 
-  s.frag_shader = gl.CreateShader(gl.FRAGMENT_SHADER)
-
-  if s.frag_shader == 0 {
-    fmt.Println("error creating fragment shader")
-  }
-
-  vert_src := gl.GLStringArray(vert_shader)
-	defer gl.GLStringArrayFree(vert_src)
-
-  gl.ShaderSource(s.vert_shader, 1, &vert_src[0], nil);
-  gl.CompileShader(s.vert_shader);
+  gl.ShaderSource(*shader, 1, &src[0], nil);
+  gl.CompileShader(*shader);
 
   var (
-		status     gl.Int
+		status gl.Int
 		info_length gl.Int
-		message    *gl.Char
+		message *gl.Char
 	)
 
-  gl.GetShaderiv(s.vert_shader, gl.COMPILE_STATUS, &status)
+  gl.GetShaderiv(*shader, gl.COMPILE_STATUS, &status)
   if status == gl.FALSE {
-    fmt.Println("Error compiling vertex shader")
-    gl.GetShaderiv(s.vert_shader, gl.INFO_LOG_LENGTH, &info_length)
+    fmt.Println("Error compiling shader")
+    gl.GetShaderiv(*shader, gl.INFO_LOG_LENGTH, &info_length)
 		message = gl.GLStringAlloc(gl.Sizei(info_length))
-		gl.GetShaderInfoLog(s.vert_shader, gl.Sizei(info_length), nil, message)
+		gl.GetShaderInfoLog(*shader, gl.Sizei(info_length), nil, message)
 		fmt.Println(gl.GoString(message))
 		gl.GLStringFree(message)
 	}
+  
+}
 
-  frag_src := gl.GLStringArray(frag_shader)
-	defer gl.GLStringArrayFree(frag_src)
+func (s* Shader) initWithString(vert_shader string, frag_shader string) {
 
-  gl.ShaderSource(s.frag_shader, 1, &frag_src[0], nil);
-  gl.CompileShader(s.frag_shader);
-
-  gl.GetShaderiv(s.frag_shader, gl.COMPILE_STATUS, &status)
-  if status == gl.FALSE {
-    fmt.Println("Error compiling frag shader")
-    gl.GetShaderiv(s.frag_shader, gl.INFO_LOG_LENGTH, &info_length)
-		message = gl.GLStringAlloc(gl.Sizei(info_length))
-		gl.GetShaderInfoLog(s.frag_shader, gl.Sizei(info_length), nil, message)
-		fmt.Println(gl.GoString(message))
-		gl.GLStringFree(message)
-	}
+  s.initShader(gl.VERTEX_SHADER, vert_shader, &s.vert_shader)
+  s.initShader(gl.FRAGMENT_SHADER, frag_shader, &s.frag_shader)
 
   s.program = gl.CreateProgram()
-  fmt.Println("program : ", s.program)
 
   gl.AttachShader(s.program, s.vert_shader)
 	gl.AttachShader(s.program, s.frag_shader)
 	gl.LinkProgram(s.program)
+
+  var (
+		status gl.Int
+		info_length gl.Int
+		message *gl.Char
+	)
 
 	gl.GetProgramiv(s.program, gl.LINK_STATUS, &status)
 	if status == gl.FALSE {
 		fmt.Println("Error linking program")
 		gl.GetProgramiv(s.program, gl.INFO_LOG_LENGTH, &info_length)
 		message = gl.GLStringAlloc(gl.Sizei(info_length))
-		gl.GetShaderInfoLog(s.program, gl.Sizei(info_length), nil, message)
+		gl.GetProgramInfoLog(s.program, gl.Sizei(info_length), nil, message)
 		fmt.Println(gl.GoString(message))
 		gl.GLStringFree(message)
 	}
 
-  s.initAttribute()
-  s.initUniform()
+  s.initAttributes()
+  s.initUniforms()
 
 }
 
-func (s* Shader) initAttribute() {
-  attribute_name := gl.GLString("vertex")
-  defer gl.GLStringFree(attribute_name)
-  att_tmp := gl.GetAttribLocation(s.program, attribute_name)
+func (s* Shader) initAttribute(name string, att *gl.Uint ){
+  att_name := gl.GLString(name)
+  defer gl.GLStringFree(att_name)
+  att_tmp := gl.GetAttribLocation(s.program, att_name)
   if att_tmp == -1 {
-		fmt.Println("Error in getting attribute ", gl.GoString(attribute_name))
+		fmt.Println("Error in getting attribute ", gl.GoString(att_name))
 	} else {
-    s.attribute_vertex = gl.Uint(att_tmp)
+    *att = gl.Uint(att_tmp)
   }
-
-  fmt.Println("attrib vertex ", s.attribute_vertex)
-
-  attribute_name = gl.GLString("normal")
-  att_tmp = gl.GetAttribLocation(s.program, attribute_name)
-  if att_tmp == -1 {
-		fmt.Println("mmm Error in getting attribute", gl.GoString(attribute_name))
-	} else {
-    s.attribute_normal = gl.Uint(att_tmp)
-  }
-
-  fmt.Println("attrib normal ", s.attribute_normal)
-
-  attribute_name = gl.GLString("texcoord")
-  att_tmp = gl.GetAttribLocation(s.program, attribute_name)
-  if att_tmp == -1 {
-		fmt.Println("mmm Error in getting attribute", gl.GoString(attribute_name))
-	} else {
-    s.attribute_texcoord = gl.Uint(att_tmp)
-  }
-
 }
 
-func (s* Shader) initUniform() {
-  uniform_name := gl.GLString("test")
-  defer gl.GLStringFree(uniform_name)
-  s.uniform_test  = gl.GetUniformLocation(s.program, uniform_name)
-  if s.uniform_test == -1 {
-		fmt.Println("Shit Error in getting uniform", gl.GoString(uniform_name))
+func (s* Shader) initAttributes() {
+  s.initAttribute("vertex", &s.attribute_vertex)
+  s.initAttribute("normal", &s.attribute_normal)
+  s.initAttribute("texcoord", &s.attribute_texcoord)
+}
+
+func (s *Shader) initUniform(name string, uni *gl.Int) {
+  uni_name := gl.GLString(name)
+  defer gl.GLStringFree(uni_name)
+  *uni  = gl.GetUniformLocation(s.program, uni_name)
+  if *uni == -1 {
+		fmt.Println("Error in getting uniform", gl.GoString(uni_name))
   }
+}
 
-  //setting the uniform
-  s.use()
-  gl.Uniform1f(s.uniform_test, 1.0)
-
-  uniform_name = gl.GLString("matrix")
-  s.uniform_matrix  = gl.GetUniformLocation(s.program, uniform_name)
-  if s.uniform_matrix == -1 {
-		fmt.Println("Error in getting uniform", gl.GoString(uniform_name))
-  }
-  fmt.Println("no error ", s.uniform_matrix)
-
-
-  uniform_name = gl.GLString("normal_matrix")
-  s.uniform_normal_matrix  = gl.GetUniformLocation(s.program, uniform_name)
-  if s.uniform_normal_matrix == -1 {
-		fmt.Println("Error in getting uniform", gl.GoString(uniform_name))
-  } else {
-    fmt.Println("no error ", s.uniform_normal_matrix)
-  }
-
+func (s* Shader) initUniforms() {
+  s.initUniform("matrix", &s.uniform_matrix)
+  s.initUniform("normal_matrix", &s.uniform_normal_matrix)
 }
 
 func (s* Shader) destroy() {

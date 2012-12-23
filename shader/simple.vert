@@ -26,7 +26,7 @@ void main(void)
   //gl_Position =   gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(vertex, 1.0);
   //gl_Position =   gl_ProjectionMatrix * matrix * vec4(vertex, 1.0);
   //gl_Position =   gl_ProjectionMatrix * matrix * vec4(vertex, test);
-  gl_Position = matrix * vec4(vertex, test);
+  gl_Position = matrix * vec4(vertex, 1.0f);//test);
   f_texcoord = texcoord;
 }
 
