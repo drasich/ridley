@@ -125,13 +125,18 @@ func (mr *ModelReader) readModel(path string, m* Model) {
   mr.readuint16(&uvs_num)
   fmt.Printf("uvs num  %d \n", uvs_num)
 
-  for i := 0 ; i <int(uvs_num); i++ {
-    var x,y float32
-    mr.readfloat32(&x)
-    mr.readfloat32(&y)
+  m.has_uv = uvs_num > 0
+  //m.has_uv = false
 
-    m.uvs = append(m.uvs,gl.Float(x),gl.Float(y))
-    fmt.Printf("uvs %f, %f \n", x, y)
+  if m.has_uv {
+    for i := 0 ; i <int(uvs_num); i++ {
+      var x,y float32
+      mr.readfloat32(&x)
+      mr.readfloat32(&y)
+
+      m.uvs = append(m.uvs,gl.Float(x),gl.Float(y))
+      fmt.Printf("uvs %f, %f \n", x, y)
+    }
   }
 
 }

@@ -22,6 +22,8 @@ type Model struct {
   uvs       []gl.Float
   shader Shader
 
+  has_uv bool
+
   //TODO this doesn't need to be here
   // it can be declared outside but it must not be cleaned by the gc
   // also check the other variables
@@ -58,13 +60,15 @@ func (m *Model) init() (err error) {
 
   m.initTexture()
 
-  gl.GenBuffers(1, &m.texcoord)
-  gl.BindBuffer(gl.ARRAY_BUFFER, m.texcoord)
-  gl.BufferData(
-    gl.ARRAY_BUFFER,
-    gl.Sizeiptr(len(m.uvs)* int(unsafe.Sizeof(m.uvs[0]))),
-    gl.Pointer(&m.uvs[0]),
-    gl.STATIC_DRAW);
+  if (m.has_uv) {
+    gl.GenBuffers(1, &m.texcoord)
+    gl.BindBuffer(gl.ARRAY_BUFFER, m.texcoord)
+    gl.BufferData(
+      gl.ARRAY_BUFFER,
+      gl.Sizeiptr(len(m.uvs)* int(unsafe.Sizeof(m.uvs[0]))),
+      gl.Pointer(&m.uvs[0]),
+      gl.STATIC_DRAW);
+    }
 
 	return
 }
@@ -149,15 +153,17 @@ func (m* Model) draw() {
   gl.Uniform1i(m.shader.uniform_texture, 0)
 
   //texcoord
-  gl.BindBuffer(gl.ARRAY_BUFFER, m.texcoord);
-  gl.EnableVertexAttribArray(m.shader.attribute_texcoord);
-  gl.VertexAttribPointer(
-    m.shader.attribute_texcoord,
-    2,
-    gl.FLOAT,
-    gl.FALSE,
-    0,
-    gl.Pointer(nil));
+  if m.has_uv {
+    gl.BindBuffer(gl.ARRAY_BUFFER, m.texcoord);
+    gl.EnableVertexAttribArray(m.shader.attribute_texcoord);
+    gl.VertexAttribPointer(
+      m.shader.attribute_texcoord,
+      2,
+      gl.FLOAT,
+      gl.FALSE,
+      0,
+      gl.Pointer(nil));
+    }
 
   gl.BindBuffer(gl.ARRAY_BUFFER, m.buffer);
   gl.EnableVertexAttribArray(m.shader.attribute_vertex);
@@ -186,7 +192,9 @@ func (m* Model) draw() {
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
   gl.DisableVertexAttribArray(m.shader.attribute_vertex);
   gl.DisableVertexAttribArray(m.shader.attribute_normal);
-  gl.DisableVertexAttribArray(m.shader.attribute_texcoord);
+  if m.has_uv {
+    gl.DisableVertexAttribArray(m.shader.attribute_texcoord);
+  }
 
 }
 
